@@ -1,1670 +1,371 @@
 # CounterHOI
 
-**Learning 3D Human-Object Interaction Generation from Counterfactual Interactions**
+## 基于结构化错误交互监督的三维人–物交互生成与评估
 
-通过构造有针对性的错误人–物交互样本，研究能否改善三维人–物交互（3D HOI）生成中的**交互一致性**与**组合泛化能力**。
+**3D Human–Object Interaction Generation and Evaluation with Structured Invalid Interaction Supervision**
 
-> **当前状态：项目规划 / 早期复现阶段。**  
-> 本仓库记录三人、四周的研究原型实施方案。目前不代表已完成代码、训练或实验。ViHOI 暂定为主基线，OMOMO 暂定为首个数据集；官方代码、权重、数据适配、许可证与训练资源均须在第一周核实。下文所有性能提升均为待验证假设，不是已有结果，也不构成论文录用承诺。
-
----
-
-## 1. 项目目标与研究问题
-
-计划输入文本描述与物体几何表示，输出人体运动、物体运动及其交互序列；具体输入约束以核实后的基线接口为准。
-
-核心研究问题：
-
-> **在正确示范之外，显式学习经过有效性筛选的错误交互，能否帮助模型减少交互错误，并泛化到训练时未出现的动作–物体组合？**
-
-例如，在需要持续抓持的搬运片段中，模型可能生成：
-
-```text
-手已经离开物体
-        ↓
-但物体仍继续随人体向上移动
-```
-
-这类序列从局部运动上可能仍然平滑，但在人–物交互关系上是不成立的。
-
-CounterHOI 不只学习：
-
-```text
-什么是正确交互
-```
-
-还尝试学习：
-
-```text
-什么是“看起来接近正确，但实际上交互错误”的样本
-```
-
-因此，本项目真正想研究的是：
-
-> **模型能否通过受控错误样本学习“交互失败边界（interaction failure boundary）”。**
-
-四周目标是完成可复现的研究原型、核心对照实验与论文初稿。是否继续面向 CVPR 等会议扩展，由相关工作核查和实验结果决定；模块数量与代码行数不作为研究价值的证据。
+> 当前版本：FYP 实施方案。第一阶段聚焦 **Interaction Consistency Critic + Candidate Reranking**，完成生成、评分、筛选、评估与可视化闭环，并为后续生成器训练及论文实验保留接口。
+>
+> 本文描述目标方案，不代表代码、数据处理、训练或实验已经完成。ViHOI 暂定为基线，OMOMO 暂定为首个数据集；可用权重、数据、特征、许可证和运行条件需要实际核实。所有效果均为待验证假设。
 
 ---
 
-## 2. 研究范围
+## 1. 项目目标
 
-| 项目 | 计划 |
-| --- | --- |
-| 主基线 | ViHOI，第一周验证代码、权重、训练与评估入口 |
-| 数据 | OMOMO 优先，验证与基线的数据格式、文本标注兼容性 |
-| 核心思想 | Interaction-specific Counterfactual Supervision |
-| 核心模块 | 反事实样本构造、Interaction Consistency Critic、组合泛化评估 |
-| 辅助模块 | Difficulty-Aware Curriculum |
-| 核心评估 | 交互一致性、未见动作–物体组合、真实生成错误上的 Critic 泛化 |
-| 团队与周期 | 3 人，4 周，以阶段验收决定是否继续 |
-| 算力 | RTX 4090 优先开发；显存与训练时长实测后再决定是否使用 A100 |
-| 最终产出 | 代码、数据构造工具、划分清单、模型权重（许可允许时）、实验记录、对比视频、论文初稿 |
+三维人–物交互生成需要同时生成协调的人体动作与物体运动。某些结果虽然运动平滑，却存在交互错误，例如在需要持续抓持的搬运阶段，手提前离开物体，但物体仍继续按被搬运的轨迹运动。
 
-本轮不做：
+本项目研究：
 
-- 新扩散骨干；
-- VLM / Foundation Model 重训练；
-- 多物体交互；
-- 关节物体；
-- 物理仿真控制；
-- 真实机器人部署；
-- 完整跨数据集训练。
+> 能否通过结构化错误交互样本训练一个轻量评分模型，使其识别真实生成结果中的交互错误，并从同一条件的多个候选中选择更合理的结果？
 
-第二数据集、更强 baseline 和更多 unseen object 只作为后续扩展目标。
+FYP 的目标不是从零开发生成骨干，而是在已有生成器基础上完成：
 
----
+1. 可复现的三维交互生成与展示。
+2. 一种可靠的错误交互构造方法及质量检查。
+3. 一个交互一致性评分模型（Interaction Consistency Critic）。
+4. 固定候选池上的自动筛选系统。
+5. 独立评估、对照实验、失败分析和演示视频。
 
-## 3. 整体技术路线
+第一阶段改善的是 **候选选择**。除非后续完成生成器训练并有独立证据，否则不宣称生成器本身获得了改进。
+
+## 2. FYP 范围与论文扩展边界
+
+| 内容 | FYP 必做范围 | 后续论文扩展 |
+| --- | --- | --- |
+| 生成基线 | 跑通推理、评估和可视化；缓存候选 | 按公平数据协议训练或微调基线 |
+| 错误样本 | 一种可靠的提前释放错误 | 更多空间、时序及动作相关错误 |
+| 正样本检查 | 原始有效片段＋经验证的有效扰动 | 更丰富、难度匹配的正负轨迹对 |
+| Critic | 轻量模型，验证合成与真实生成错误 | 泛化、迁移、结构和训练策略消融 |
+| 输出改进 | 固定候选池重排序 | 可微一致性目标优化生成器 |
+| 对照实验 | 随机选择、规则选择、Critic 选择 | 直接接触损失、随机负例、课程训练等 |
+| 泛化 | 独立原始序列测试；审计组合覆盖 | 严格的 Seen / Unseen Pair 实验 |
+| 数据集 | 一个数据集 | 按需要增加第二数据集 |
+| 交付 | 代码、配置、结果、Demo、FYP 报告 | 完整实验与投稿论文 |
+
+FYP 不强制完成生成器重训练、完整组合泛化、难度课程、新骨干、多物体交互、关节物体、物理仿真控制或真实机器人部署。
+
+FYP 完成标准是系统闭环、实验可信、结果分析完整。研究效果不预设为正；即使 Critic 未超过规则，也应报告结果和适用边界。论文扩展取决于是否获得有意义、可重复的收益。
+
+## 3. 整体流程
+
+### 3.1 Critic 训练
+
+从训练集有效交互片段中构造两类样本：保留交互关系的正样本，以及经有效性筛选的错误负样本。提取一致的运动与几何特征后，训练轻量时序评分器。
+
+### 3.2 生成与候选筛选
 
 ```mermaid
 flowchart TD
-    A[训练集真实交互] --> B[正样本]
-    A --> C[反事实扰动]
-    C --> D[有效性筛选]
-    D --> E[困难负样本]
-    B --> F[Interaction Consistency Critic]
-    E --> F
-    G[文本与物体条件] --> H[HOI生成器]
-    H --> I[预测交互序列]
-    F --> J[冻结Critic的一致性目标]
-    I --> J
-    J --> H
+    A[文本、物体及基线所需条件] --> B[冻结的 ViHOI 生成器]
+    B --> C[缓存固定 K 个候选]
+    C --> D[随机选择]
+    C --> E[规则评分选择]
+    C --> F[Critic 评分选择]
+    D --> G[独立评估与对比展示]
+    E --> G
+    F --> G
 ```
 
-项目围绕三个主要研究部分展开：
+候选数量 `K` 可配置，初版可用 `K=4` 进行小规模验证；它是初始设置，不是已证明的最佳数量。三种方法必须共享相同候选 ID、条件和候选池。
 
-1. **Counterfactual Interaction Generation**
-2. **Interaction Consistency Critic**
-3. **Compositional Generalization Evaluation**
+ViHOI 的实际输入可能包含额外条件和视觉特征，不能直接假定为纯文本加物体。首先核实官方接口，再统一封装。生成一次后缓存运动、特征和元数据，评分器变化时无需重新生成候选。
 
-Difficulty-Aware Curriculum 作为辅助实验，不作为主要创新点。
+## 4. 数据与划分
 
----
+### 4.1 数据审计
 
-## 4. 反事实交互构造
+优先使用 OMOMO 及基线兼容的处理后数据，确认：
 
-从训练集真实运动出发，只改变有限的交互因素，尽量保留其他条件。
+- 原始序列 ID、人物 ID、动作文本、物体 ID 与类别。
+- 人体表示、关节顺序、物体位姿、几何与坐标约定。
+- 距离单位、帧率、有效帧掩码和运动片段长度。
+- 接触标签来源，以及是否存在可用于判断持续抓持阶段的信息。
+- 可用基线检查点、VLM 特征、评估器及其训练数据范围。
 
-这里的“反事实”指：
+先按原始序列冻结 train / validation / test，再切窗口与构造扰动。一个原始序列及其所有衍生样本必须留在同一个集合中。阈值与超参数只用 train / validation 确定。
 
-> **受控扰动得到的错误交互样本。**
+FYP 可优先沿用核实后的官方划分，并披露基线与 Critic 的数据暴露情况。自定义未见组合划分如果与预训练权重冲突，不能直接声称严格组合泛化。
 
-不主张已经建立严格的因果识别模型。
+### 4.2 独立真实生成评估集
 
-反事实样本必须同时满足：
+真实生成结果是核心测试对象。建立开发/验证候选集与最终测试候选集，用前者调规则阈值、选择模型，用后者报告最终结果。
 
-```text
-1. 局部运动仍然看起来合理
-2. 人–物交互关系被破坏
-```
+人工检查记录“合理 / 错误 / 不确定”、错误类型及理由。检查时隐藏选择方法与 Critic 分数。不确定案例单独报告，不强行转成确定标签。尽可能安排两名成员独立检查一个子集，再记录分歧和复核结果。
 
-如果负样本本身存在非常明显的拼接、速度突变或姿态异常，Critic 可能只是在学习“坏动画”，而不是学习交互规律。
+## 5. 结构化错误交互构造
 
----
+### 5.1 第一种错误：Premature Release
 
-### 4.1 Premature Release
+只对需要持续抓持或支撑的交互阶段进行扰动：在片段中提前打断必要的人–物接触，同时保留相应物体搬运运动，构造“动作局部平滑、交互关系被破坏”的负例。
 
-在需要持续抓持、支撑或搬运的阶段，提前打断手–物接触，但保留部分物体原始运动。
+具体修改姿态、相对位置或时序的方式由数据表示决定。必须修改实际运动并重新计算接触，不允许只把接触标签从 1 改成 0。
 
-例如：
+排除合法投掷、惯性运动、自由落体、正常释放、其他身体部位持续支撑，以及环境支撑足以解释运动的情况。仅凭“距离大于阈值且物体在动”不足以确定负例。
 
-```text
-原始：
+### 5.2 有效性筛选
 
-手持续接触
-──────────────
+每个负样本检查：运动连续性、异常速度/加速度、接触中断、物体支撑条件和动作阶段。对不同扰动强度分层抽查，区分：
 
-物体持续被搬运
-──────────────
-```
+- 有效负例：交互确实被破坏，且不存在主导分类的明显动画痕迹。
+- 无效负例：交互仍然合理，或出现严重拼接等非目标错误。
+- 不确定：缺少足够信息判断，排除出确定监督。
 
-构造后：
+记录候选数、接受数、排除原因及人工抽查比例。样本筛选规则与最终独立评价需要区分，避免只证明模型复现了构造规则。
 
-```text
-手接触
-──────
+### 5.3 有效扰动正例
 
-物体仍继续被搬运
-──────────────
-```
+增加少量“修改过但仍然有效”的轨迹作为正样本或专项测试，检查 Critic 是否把修改痕迹误判为错误。
 
-适用条件：
+低成本起点是对完整人–物系统做一致的水平平移或绕竖直轴旋转；必须同步变换物体、人体及相关空间条件，并确认环境或文本条件没有被破坏。这类检查只证明对相应变换的稳健性，不能单独证明模型完全不依赖局部扰动痕迹。
 
-- 必须是需要持续接触的交互阶段；
-- 排除正常投掷；
-- 排除合法释放；
-- 排除自由落体；
-- 排除本来就允许脱离接触的动作。
+### 5.4 元数据
 
----
-
-### 4.2 Object Motion Without Required Contact
-
-改变人体与物体的相对时序或相对位置，使物体在缺少必要人体接触时仍保持原本的受控运动。
-
-例如：
-
-```text
-手已经远离物体
-        ↓
-物体仍继续跟随人体移动
-```
-
-必须排除：
-
-- 惯性运动；
-- 滚动；
-- 滑动；
-- 自由落体；
-- 外部支撑；
-- 投掷；
-- 合法释放后的运动。
-
-因此，这类样本必须依赖 interaction phase 和有效性筛选。
-
----
-
-### 4.3 Spatial Contact Shift
-
-改变手与物体之间的相对位置，使手接触或接近一个与当前交互不一致的位置。
-
-例如：
-
-```text
-原始：
-hand → 有效交互区域
-
-扰动：
-hand → 邻近但不合理的区域
-```
-
-注意：
-
-> 不能简单认为“不是原始接触位置”就一定错误。
-
-只有在数据或几何关系足以支持“该区域明显不适合当前动作”时，才将其作为确定负例。
-
----
-
-### 4.4 Wrong Body Part
-
-Wrong Body Part 暂不作为第一优先级。
-
-原因是：
-
-```text
-肘部接触 ≠ 一定错误
-腿部接触 ≠ 一定错误
-非手部接触 ≠ 一定错误
-```
-
-它高度依赖具体动作语义。
-
-如果没有足够可靠的动作语义依据，不为凑齐扰动类型强行加入该类别。
-
----
-
-## 5. 反事实有效性筛选
-
-所有负样本都必须经过有效性检查。
-
-建议检查：
-
-```text
-运动连续性
-速度连续性
-异常加速度
-人体–物体距离
-穿透
-接触持续时间
-物体支撑状态
-Interaction Phase
-```
-
-每个样本需要保存：
-
-```json
-{
-  "source_id": "...",
-  "corruption_type": "premature_release",
-  "severity": 0.35,
-  "seed": 42,
-  "validity": true
-}
-```
-
-建议额外记录：
-
-```text
-action_label
-object_category
-interaction_phase
-contact_frames
-corruption_parameters
-filter_reason
-```
-
-必须进行人工抽查，并将样本分为：
-
-```text
-有效负例
-无效负例
-不确定
-```
-
-不确定样本不作为确定负例。
-
----
+保存 `source_id`、`split`、`label`、`corruption_type`、`severity`、`seed`、适用阶段、扰动参数、筛选结论与理由。明确区分“负例构造有效”与“交互本身有效”，避免模糊的 `validity=true`。
 
 ## 6. Interaction Consistency Critic
 
-第二个核心模块是 **Interaction Consistency Critic**。
+初版使用一个轻量时序模型，例如 TCN 或小型 Transformer，暂不并行开发多种复杂架构。
 
-Critic 输入可包括：
+输入优先包含人体关节运动、物体位姿/速度、人–物相对几何与接触距离。若数据提供可靠文本/动作特征，可使用冻结编码或已有缓存；不重新训练语言模型。
 
-```text
-人体运动
-物体运动
-人体–物体相对几何
-Contact 特征
-文本 / 动作条件
-```
-
-第一版优先使用轻量时序模型，例如：
+输出为序列级一致性 logit；越大表示模型认为越合理。未经校准的分数不解释为“真实物理正确概率”。
 
 ```text
-Temporal Transformer
-TCN
-GRU
-Temporal MLP
+L_critic = BCEWithLogitsLoss(logit, label)
+
+label = 1：经检查的有效交互
+label = 0：经检查的错误交互
 ```
 
-本项目不以堆大模型为目标。
+第一版先完成二分类。排序损失、分错误类型输出和课程训练留作扩展。记录正负比例、随机种子、训练步数和验证集模型选择方式。
 
-核心问题是：
+必须分别评估：独立序列合成负例、有效扰动正例，以及真实生成错误。合成分类准确率高不等于真实交互评分有效。
 
-> **反事实错误监督本身是否包含有价值的交互信息？**
+## 7. 候选选择与公平对照
 
----
-
-### 6.1 Critic 训练目标
-
-第一版使用二分类：
-
-```text
-正确交互 → 1
-反事实错误交互 → 0
-```
-
-候选损失：
-
-```text
-L_critic = BCE(C(x), y)
-```
-
-如果正负样本来自同一原始序列，也可以增加 ranking：
-
-```text
-C(x_positive) > C(x_counterfactual)
-```
-
----
-
-### 6.2 Critic 必须测试什么
-
-Critic 不能只看训练集准确率。
-
-必须包含：
-
-1. 独立原始序列上的正负样本；
-2. 未见过的 corruption severity；
-3. 如果数据允许，测试未见 corruption type；
-4. 未见动作–物体组合；
-5. 最重要：**基线模型真实生成的错误样本。**
-
-最关键的实验是：
-
-```text
-训练：
-synthetic counterfactual errors
-
-测试：
-real generator errors
-```
-
-如果 Critic 在人工生成负样本上很高，但对真实生成错误无效，说明它可能只学到了扰动痕迹。
-
----
-
-### 6.3 简单规则对照
-
-必须实现 rule-based baseline，例如：
-
-```text
-hand-object distance threshold
-contact duration threshold
-unsupported object velocity
-penetration threshold
-```
-
-这个实验回答：
-
-> 为什么一定需要 Learned Critic？
-
-如果简单规则与 Critic 表现相近，则需要重新评估 Critic 的研究价值。
-
----
-
-## 7. Critic 如何影响生成器
-
-主路线：
-
-1. 先训练 Critic；
-2. 冻结 Critic 参数；
-3. 将生成器预测结果输入 Critic；
-4. 使用一致性目标优化生成器。
-
-候选目标：
-
-```text
-L_total = L_generation + λ · L_consistency
-```
-
-其中：
-
-```text
-L_consistency =
-    -log(sigmoid(C(predicted_motion, condition)))
-```
-
-具体实现必须根据 ViHOI 的预测参数化确认。
-
-第一版必须验证：
-
-- Critic 参数被冻结；
-- 梯度仍然可以传回生成器；
-- 不出现 accidental detach；
-- 几何特征尽量使用可微距离；
-- 不通过硬阈值截断训练梯度；
-- 保留原始 generation loss；
-- 检查 motion quality、text alignment 和 diversity 是否下降。
-
----
-
-## 8. Reranking 降级方案
-
-如果第三周仍无法稳定进行 gradient-based integration，则采用固定候选数的 Critic reranking。
-
-例如：
-
-```text
-同一个 condition
-        ↓
-Generator
-        ↓
-candidate 1
-candidate 2
-candidate 3
-candidate 4
-        ↓
-Critic score
-        ↓
-选择最高分结果
-```
-
-但必须明确：
-
-```text
-reranking improvement
-≠
-generator learning improvement
-```
-
-如果使用 reranking，只能声称：
-
-> Critic 能帮助候选选择。
-
-不能声称生成器本身已经学会了更好的 interaction consistency。
-
----
-
-## 9. 组合泛化协议
-
-第三个主要研究部分是：
-
-> **Compositional Generalization**
-
-问题是：
-
-> 当 action 和 object 分别在训练中出现过，但它们的组合没有出现过时，CounterHOI 是否仍然有帮助？
-
----
-
-### 9.1 Action × Object Matrix
-
-第一周需要统计：
-
-```text
-             box   bottle   chair   bag
-lift          ✓       ×       ×      ✓
-hold          ✓       ✓       ×      ✓
-move          ✓       ✓       ✓      ×
-place         ✓       ✓       ✓      ✓
-```
-
-然后根据真实数据覆盖选择 unseen pairs。
-
----
-
-### 9.2 Unseen Pair 定义
-
-一个合法的 unseen pair 必须满足：
-
-```text
-action ∈ training actions
-
-object ∈ training objects
-
-(action, object) ∉ training pairs
-```
-
-例如：
-
-```text
-训练：
-
-lift + box
-hold + bottle
-move + bottle
-
-测试：
-
-lift + bottle
-```
-
-也就是说：
-
-```text
-lift 见过
-bottle 见过
-
-但 lift + bottle 没见过
-```
-
----
-
-### 9.3 数据泄漏要求
-
-必须遵守：
-
-1. 先按原始序列划分，再切时间窗口；
-2. negative sample 必须在划分之后生成；
-3. 相邻窗口不能跨 train / val / test；
-4. normalization 统计量只使用 train；
-5. corruption threshold 与 curriculum 参数只能由 train / val 决定；
-6. 检查 pretrained weight 是否可能见过目标 test pair；
-7. 无法排除时必须在论文中明确披露。
-
-如果 OMOMO 的组合覆盖不足，则缩小结论范围，不强行制造不可靠的 unseen split。
-
----
-
-## 10. Difficulty-Aware Curriculum
-
-反事实样本可以按照难度组织。
-
-难度可参考：
-
-```text
-扰动幅度
-错误持续时间
-距离有效接触的偏差
-时间偏移
-Critic confidence
-```
-
-候选课程：
-
-| 阶段 | 样本 |
-| --- | --- |
-| 前期 | 简单负例为主 |
-| 中期 | 简单 + 中等 |
-| 后期 | 简单 + 中等 + 困难 |
-
-但 Curriculum 只作为辅助技术。
-
-主要实验必须是：
-
-```text
-同一个 negative pool
-相同训练步数
-尽可能相同样本曝光量
-
-Random Mixing
-vs
-Difficulty Curriculum
-```
-
-避免把额外训练量误认为 curriculum 的收益。
-
----
-
-## 11. 实验与评估
-
-最终评估必须尽量独立于训练 Critic。
-
-不能直接拿 Critic 自己的分数证明：
-
-```text
-“我们的方法生成得更好”
-```
-
----
-
-### 11.1 最小实验矩阵
-
-| 实验 | 比较内容 | 回答的问题 |
+| 方法 | 选择方式 | 作用 |
 | --- | --- | --- |
-| Baseline | 原始生成器 | 基础参考 |
-| Main Result | Baseline vs CounterHOI | 完整方法是否改善生成？ |
-| Rule Baseline | 简单规则 vs Learned Critic | Critic 是否真的必要？ |
-| Negative Design | Random corruption vs interaction-aware corruption | 定向负样本是否有效？ |
-| Critic Guidance | No Critic vs Critic | Critic 是否真正影响生成？ |
-| Curriculum | Random Mixing vs Curriculum | Curriculum 是否有效？ |
-| Seen / Unseen | Seen Pair vs Unseen Pair | 是否改善组合泛化？ |
-| Critic Transfer | Synthetic Error vs Generator Error | Critic 是否学到真实交互规律？ |
+| Random Selection | 固定随机种子，从同一 K 个候选中选择一个 | 无评分选择的基础对照 |
+| Rule-based Selection | 按独立接触/相对几何规则评分 | 检查简单规则是否足够 |
+| Critic Selection | 选择 Critic 分数最高的候选 | 检查学习式评分的收益 |
 
----
+规则基线由 C 负责，依据可获得的信息设计，阈值只在验证集确定。规则不得使用推理时不可获得的真实接触时间或测试答案。所有方法共享候选池、条件与可用信息，并报告评分额外耗时。
 
-### 11.2 指标
+随机选择可用多个固定种子统计波动，或计算每个候选池的均匀选择期望；这些操作复用已有候选，不额外生成运动。若所有候选都错误，重排序可能无法给出正确结果，应单独分析候选覆盖不足。
 
-| 维度 | 计划指标 | 注意事项 |
+## 8. 独立评估与成功标准
+
+### 8.1 核心指标
+
+| 维度 | FYP 评估内容 | 说明 |
 | --- | --- | --- |
-| 生成质量 | 沿用核实后的 baseline 官方指标 | 相同数据与评估器 |
-| 接触一致性 | Contact Precision / Recall / F1 | 不把唯一参考接触当作唯一正确答案 |
-| 交互错误 | Premature Release Rate | 明确 interaction phase |
-| 交互错误 | Unsupported Object Motion Rate | 排除合法无接触运动 |
-| 时间一致性 | Contact Duration Error | 只用于可对齐片段 |
-| Critic | AUROC / Balanced Accuracy | 独立序列与真实生成错误 |
-| 泛化 | Seen / Unseen Pair | 报告样本数与预训练暴露情况 |
+| Critic 判别 | AUROC、Balanced Accuracy、混淆矩阵 | 报告合成与真实生成数据各自样本量；单类子集不计算 AUROC |
+| 选择质量 | 选中结果的人工交互合理率、提前释放错误率 | 方法匿名，提前固定判定标准及不确定样本处理 |
+| 几何与接触 | 核实后采用独立几何指标 | 排除合法无接触运动，报告阈值与单位 |
+| 生成整体质量 | 可运行且适用的基线官方指标、文本符合度与运动质量检查 | 不以持续抓住或动作僵硬换取表面接触提升 |
+| 效率 | 候选生成与评分分别计时、显存峰值 | 缓存阶段与在线阶段分开报告 |
 
-几何接触如果是根据距离阈值推导，只能称为 pseudo-label / geometric contact estimate，不能直接称为 ground-truth contact。
+参考接触可对齐且评价含义成立时才报告 Contact Precision / Recall / F1；几何阈值推导的标签称为接触估计或伪标签。不能用 Critic 自己的分数证明 Critic 选择更好。
 
-必须记录：
+保存逐条件结果，报告真实样本数量与不确定性；重采样统计按独立条件或原始序列分组，不能把同一序列的相邻帧当作独立样本。
 
-```text
-距离单位
-阈值
-帧率
-坐标系
-```
+### 8.2 FYP 验收
 
-并根据需要做阈值敏感性实验。
+- [ ] 基线可生成、保存、加载和展示三维人–物运动。
+- [ ] 数据划分及衍生样本不存在跨集合泄漏。
+- [ ] 一种可靠负样本构造与有效扰动检查完成，并有人工抽查记录。
+- [ ] Critic 可训练、验证、保存、加载和批量评分。
+- [ ] 三种选择方法在同一候选池上运行。
+- [ ] 使用独立评估检查真实生成结果，报告所有核心对照。
+- [ ] 提供成功、失败、无改善及候选全部失败的案例分析。
+- [ ] 提供运行说明、配置、实验记录、对比视频和 FYP 报告。
 
----
+完成上述项目意味着实现了可评估的 FYP 系统，不保证研究假设成立。若 Critic 在真实生成结果中稳定优于规则，才进一步考虑扩大论文实验。
 
-# 12. 三人分工
+## 9. 三人职责与交付物
 
-为了避免原来的任务串行依赖，重新调整为：
+### A：Baseline & System Integration — 基线与系统集成
 
-- **A：Generation / Baseline Lead**
-- **B：Counterfactual / Critic Lead**
-- **C：Evaluation / Generalization Lead**
+**负责把生成、评分、选择与展示连接成可运行系统。**
 
-大致工作量：
+工作内容：
 
-```text
-A ≈ 35%
-B ≈ 35%
-C ≈ 30%
-```
+- 核实基线来源、版本、许可证、检查点、数据与特征依赖，完成推理复现。
+- 明确生成器输入输出、坐标系、关节表示及额外条件，封装统一适配器。
+- 测试显存与生成速度，固定采样配置和随机种子，生成并缓存候选池。
+- 实现随机选择、统一评分器调用、Critic 重排序与结果导出。
+- 集成 C 的评估与可视化入口，提供命令行演示和并列对比视频；网页界面可选。
+- 记录系统限制与运行步骤，撰写基线和系统实现章节。
 
----
+交付：生成器适配器、候选缓存、选择入口、演示脚本、配置、复现记录与运行文档。
 
-## 12.1 A：Generation / Baseline Lead
+**边界：** FYP 阶段不要求 A 训练生成器；不承担 Critic 模型训练或规则评分器设计。
 
-主要负责：
+### B：Counterfactual & Critic — 错误样本与评分模型
 
-> 跑通 HOI 生成器，并完成 Critic 与生成器之间的集成。
+**负责构造可信监督并训练交互评分模型。**
 
-### Week 1
+工作内容：
 
-- 核实 ViHOI 官方论文与仓库；
-- 核实 license；
-- 核实 pretrained weights；
-- 跑通 inference；
-- 跑 short training；
-- 测显存；
-- 测运行速度；
-- 确认输入 / 输出 representation；
-- 定位 generator loss；
-- 定位 prediction parameterization。
+- 审计人体、物体与接触数据，和 A/C 共同冻结运动数据接口。
+- 实现训练侧接触/相对几何特征、提前释放扰动和负样本有效性筛选。
+- 实现有效扰动正例或专项测试，保存完整扰动参数与来源。
+- 在固定划分内生成数据，组织分层抽查并记录不确定样本。
+- 实现轻量 Critic、训练配置、检查点加载与统一评分接口。
+- 先用一种可靠扰动交付可用 Critic v0，不等待更多类型完成。
+- 配合 C 检查合成错误到真实生成错误的迁移，分析模型依赖的线索。
+- 撰写样本构造、Critic 方法与相关实验章节。
 
-交付：
+交付：样本构造工具、元数据与质量报告、特征提取器、Critic、配置、检查点及训练记录。
 
-```text
-reports/baseline_reproduction.md
-```
+**边界：** B 的构造规则不直接充当最终真值；最终规则对照和评价协议由 C 负责。
 
----
+### C：Evaluation & Research — 划分、独立评估与实验管理
 
-### Week 2
+**负责实验是否公平、结论是否可信。**
 
-实现生成器侧接口：
+工作内容：
 
-```text
-training/consistency_loss.py
-```
+- 在正式数据生成与 Critic 训练前冻结 train / validation / test，检查序列泄漏及基线预训练暴露。
+- 统计动作–物体覆盖，为后续组合泛化提供可行性报告；FYP 不强造稀疏组合测试。
+- 跑通适用的官方评估，实现独立规则评分器及交互指标。
+- 固定真实候选开发集和测试集、匿名抽查协议、阈值选择与统计方法。
+- 比较随机、规则、Critic 选择，维护统一结果表并记录失败与无收益结果。
+- 负责评估可视化、图表及 Demo 中的接触标注展示，A 负责最终系统集成。
+- 维护相关工作与差异记录，撰写实验设置、结果分析与研究限制章节。
 
-必须验证：
+交付：划分清单、规则评分器、评估代码、人工检查记录、统计表、图表和相关工作记录。
 
-```text
-Critic frozen
-Generator 有 gradient
-Loss finite
-No accidental detach
-```
+**边界：** C 不独自承担全部论文写作；三人各写负责模块，共同审核摘要、结论与答辩材料。
 
-A 不负责 Critic 本身的训练。
+### 协作依赖
 
----
+1. A 提供少量真实生成样本，B/C 据此验证表示与评估可行性。
+2. C 冻结划分，三人共同确认数据契约后，B 才构造正式训练数据。
+3. B 交付 Critic v0 和评分接口，A 完成重排序集成。
+4. C 在冻结测试集上独立评估，三人共同分析结果。
 
-### Week 3
+分支建议：A 使用 `baseline-system`，B 使用 `counterfactual-critic`，C 使用 `evaluation-protocol`。小任务通过 PR 合并，每项交付附运行命令、实际结果和已知问题。
 
-接入 B 的 Critic。
+## 10. 统一接口：为论文扩展预留
 
-运行：
+以下是拟定接口契约，不表示当前仓库已实现这些 API。先固定数据格式与边界，不预先实现尚未需要的大模块。
 
-```text
-Baseline
+### 10.1 MotionSample 与数据契约
 
-Baseline + Critic Loss
+每条样本包含 `schema_version`、`source_id`、`sample_id`、`split`、`condition`、`human_motion`、`object_motion`、`valid_mask` 与 `metadata`。
 
-Baseline + Critic Reranking
-```
+人体表示、张量形状、关节顺序、物体局部坐标、旋转表示、帧率、单位及归一化参数放在版本化配置中。`condition` 同时记录文本、物体几何和基线实际需要的其他条件，避免不同方法信息不对等。
 
-如果 gradient integration 不稳定，则切换到 reranking fallback。
+基础元数据保持动作标签、物体类别/实例、人物 ID 和原始序列来源可追溯，为后续重新划分和泛化实验提供支持。
 
----
-
-### Week 4
-
-完成主要 generator experiment。
-
-交付：
-
-```text
-checkpoints
-configs
-training logs
-inference scripts
-comparison sequences
-failure cases
-```
-
----
-
-## 12.2 B：Counterfactual / Critic Lead
-
-主要负责：
-
-> 完成反事实错误样本系统，并训练 Interaction Consistency Critic。
-
----
-
-### Week 1
-
-审计 OMOMO：
-
-```text
-action labels
-object categories
-sequence IDs
-frame rate
-coordinate system
-human representation
-object representation
-text annotations
-contact information
-```
-
-实现：
-
-```text
-contact extraction
-contact visualization
-```
-
----
-
-### Week 2
-
-优先实现：
-
-```text
-Premature Release
-
-Object Motion Without Contact
-
-Spatial Contact Shift
-```
-
-并实现：
-
-```text
-validity filtering
-severity control
-metadata logging
-sample visualization
-```
-
-完成分层人工抽查。
-
-冻结：
-
-```text
-Counterfactual Dataset v1
-```
-
----
-
-### Week 3
-
-实现并训练 Critic。
-
-测试：
-
-```text
-held-out sequences
-unseen corruption severity
-real generator errors
-```
-
-同时实现 rule-based baseline。
-
-交付：
-
-```text
-models/interaction_critic.py
-
-counterfactual/
-
-reports/critic_results.md
-```
-
----
-
-### Week 4
-
-运行：
-
-```text
-corruption ablation
-counterfactual type analysis
-difficulty analysis
-curriculum experiment
-```
-
-将最终 Critic checkpoint 交给 A。
-
----
-
-## 12.3 C：Evaluation / Generalization Lead
-
-主要负责：
-
-> 构建独立评估系统，并负责 compositional generalization。
-
-C 不再只是“跑指标 + 写论文”。
-
----
-
-### Week 1
-
-完成 related work 核查：
-
-```text
-3D HOI Generation
-Contact-Aware Generation
-Interaction Guidance
-Counterfactual Supervision
-Negative Interaction Learning
-Compositional Generalization
-```
-
-并统计：
-
-```text
-action × object frequency matrix
-```
-
-生成 unseen pair 候选。
-
----
-
-### Week 2
-
-实现独立评估：
-
-```text
-evaluation/contact_metrics.py
-evaluation/interaction_metrics.py
-evaluation/rule_based_baseline.py
-```
-
-至少包括：
-
-```text
-Contact F1
-Premature Release Rate
-Contact Interruption Rate
-Unsupported Object Motion Rate
-```
-
-C 的最终评估不能依赖 B 的 Critic score。
-
----
-
-### Week 3
-
-冻结：
-
-```text
-train_pairs.json
-val_pairs.json
-unseen_pairs.json
-```
-
-运行：
-
-```text
-Seen Pair Evaluation
-
-Unseen Pair Evaluation
-
-Baseline Evaluation
-
-CounterHOI Evaluation
-```
-
-并负责 batch rendering 和错误可视化。
-
----
-
-### Week 4
-
-完成：
-
-```text
-main result table
-ablation table
-seen/unseen analysis
-failure analysis
-figures
-comparison videos
-paper experiment section
-```
-
-C 同时负责维护全组的 central experiment table。
-
----
-
-## 13. 协作接口
-
-### B → A
-
-提供：
-
-```text
-critic checkpoint
-critic config
-critic inference function
-counterfactual metadata
-```
-
-建议 Critic 接口：
+### 10.2 生成、扰动、评分与选择
 
 ```python
-score = critic(
-    human_motion,
-    object_motion,
-    condition
-)
+# 生成器适配器：保留替换骨干的可能
+candidates = generator.generate(condition, num_candidates=K, seeds=seeds)
+
+# 扰动插件：新增类型时无需改写数据加载器
+result = corruption.apply(sample, severity=severity, seed=seed)
+# result: modified_sample, target_label, applicability, audit_metadata
+
+# 固定候选评分；规则与 Critic 使用相同的“越大越好”约定
+scores = scorer.score(candidates, condition)  # shape [K]
+selected_id = selector.select(candidate_ids, scores)
+
+# 独立评价：不将训练 Critic 分数作为质量真值
+metrics = evaluator.evaluate(selected_samples, annotations, protocol)
 ```
 
----
+候选缓存记录 `condition_id`、`candidate_id`、`generator_commit`、`checkpoint_id`、`sampling_config` 和 `seed`；选择结果单独保存，不能覆盖原始候选。
 
-### A → C
+### 10.3 可微评分扩展
 
-统一输出：
+将神经网络 `forward()` 与用于 FYP 推理的 `score()` 分开：`score()` 可以关闭梯度、批处理缓存；`forward()` 保持张量运算与梯度路径，便于后续一致性训练。
 
-```text
-sequence_id
-condition
-method
-seed
-human_motion
-object_motion
-checkpoint
-config
-```
+未来训练生成器时，即使冻结 Critic 参数，也必须允许梯度传回生成运动。FYP 使用的硬接触阈值、离线网格处理或 NumPy 特征不自动具有可微性，接入训练前必须新增或替换相应特征路径并测试。
 
----
+### 10.4 评估与配置扩展
 
-### B → C
+使用独立配置管理 `generator`、`corruption`、`features`、`critic`、`selector`、`split`、`evaluation`。固定协议与结果表结构，可增加 `seen_pair / unseen_pair` 分组和不同训练方法，不改写已有 FYP 评价。
 
-提供：
+## 11. 建议目录结构
 
-```text
-source_id
-corruption_type
-severity
-seed
-validity
-```
-
-C 可以使用这些 metadata 做分析，但不能直接把 Critic 当最终 evaluator。
-
----
-
-## 14. 建议目录结构
+以下为规划结构；缺少代码时不要将文件名视为现成运行命令。
 
 ```text
 3DHOI/
 ├── README.md
-├── configs/
-├── models/
-│   └── interaction_critic.py
-├── counterfactual/
-│   ├── corruptions.py
-│   ├── premature_release.py
-│   ├── spatial_shift.py
-│   ├── unsupported_motion.py
-│   ├── validity.py
-│   └── difficulty.py
-├── datasets/
-│   ├── extract_contact.py
-│   ├── build_pair_matrix.py
-│   └── compositional_split.py
-├── training/
-│   ├── consistency_loss.py
-│   └── curriculum_sampler.py
-├── evaluation/
-│   ├── contact_metrics.py
-│   ├── interaction_metrics.py
-│   ├── critic_metrics.py
-│   ├── rule_based_baseline.py
-│   └── compositional_eval.py
-├── visualization/
-├── splits/
-│   ├── train_pairs.json
-│   ├── val_pairs.json
-│   └── unseen_pairs.json
-├── tests/
-└── reports/
+├── configs/                 # 表示、数据、模型、候选生成与评价配置
+├── adapters/                # ViHOI 适配器及统一运动格式
+├── datasets/                # 加载器、数据审计、划分检查
+├── features/                # 共享几何原语、训练侧特征
+├── counterfactual/          # 扰动插件、有效性筛选、正例检查
+├── models/                  # Interaction Consistency Critic
+├── training/                # FYP: Critic 训练；后续可加生成器训练
+├── selection/               # Random / Rule / Critic 选择
+├── evaluation/              # 独立指标、统计与人工检查汇总
+├── visualization/           # 渲染、接触时间线与视频
+├── scripts/                 # 审计、生成、训练、筛选、评估入口
+├── splits/                  # 版本化划分清单
+├── tests/                   # 数据泄漏、坐标、掩码等关键检查
+└── reports/                 # 复现、数据质量、实验与失败分析
 ```
 
----
+原始数据、大型特征、运动缓存、检查点与视频存放在可配置的数据目录，默认不纳入 Git。共享几何基础函数可以复用，但训练标签、样本筛选与最终判定逻辑保持边界清楚。
 
-## 15. Git 开发流程
+## 12. 资源与复现要求
 
-建议分支：
+FYP 只训练轻量 Critic，生成器冻结。优先使用现有 16GB GPU 做开发与小批量推理；是否适配目标 ViHOI 配置，以实际显存测试为准。显存不足时再使用 24GB 或更大显存 GPU，不预先承诺完整配置可运行。
+
+采用缓存特征、分批生成、复用固定候选池减少重复开销。参考图像与 VLM 特征的来源需记录；测试时不能使用目标真实运动渲染图替代正式推理条件，除非单独标为使用额外真实信息的诊断实验。
+
+训练与生成耗时均通过短测试确定，分别记录预处理、生成、Critic 训练、评分及渲染时间。若基线检查点或处理后数据不可获取，应先解决资源问题，不能把“只训练小 Critic”的预算套用于从头训练生成器。
+
+每次实验记录 Git commit、数据及划分版本、随机种子、配置、GPU、峰值显存、运行时间、检查点、候选池 ID、指标与评价命令。只写实际运行结果，不编造安装命令、完成状态或性能数字。
+
+## 13. 后续论文扩展路线
+
+扩展以 FYP 真实结果为依据，不要求一次完成所有方向。
+
+| 扩展方向 | 复用 FYP 资产 | 新增工作 | 应回答的问题 |
+| --- | --- | --- | --- |
+| 更多结构化负例 | 扰动接口、元数据、质量检查 | 时序错位、空间接触偏移等可靠类型 | 错误设计是否比通用随机扰动有效？ |
+| 生成器一致性训练 | Critic、生成器适配器 | 可微特征、冻结 Critic 的训练损失 | 能否改善生成器本身？ |
+| 直接几何约束对照 | 相对几何与评估代码 | 接触/相对几何损失，匹配训练预算 | 为什么需要学习式 Critic？ |
+| 组合泛化 | 来源信息、动作物体统计、划分工具 | 严格未见组合划分及必要的基线重训 | 收益能否迁移到新组合？ |
+| 难度课程 | severity 与负样本缓存 | 同池随机混合与课程采样 | 收益是否来自课程而非额外训练量？ |
+| 更充分验证 | 统一生成和评估接口 | 多种子、第二骨干或第二数据集 | 结论是否稳定且可迁移？ |
+
+候选生成器目标可写为：
 
 ```text
-main
-
-baseline-generator
-counterfactual-critic
-evaluation-generalization
+L_total = L_baseline + λ · L_consistency
 ```
 
-对应：
+该目标仅为未来接口方向，具体预测参数化、梯度路径、几何解码和训练稳定性需要单独验证。FYP 的重排序成功不自动意味着此训练目标有效。
 
-```text
-A → baseline-generator
-B → counterfactual-critic
-C → evaluation-generalization
-```
+组合泛化是实验问题，不直接视为独立原创贡献。难度课程保持选做；若无收益，应如实报告，不为凑贡献数量强行保留。
 
-不要多人长期直接修改同一核心文件。
+## 14. 研究定位与参考入口
 
-每个 Codex 任务限制为一个可验收模块：
+本项目将“反事实负例”限定为受控构造的错误轨迹，不主张严格因果识别，也不把所有替代动作都视为无效。不能宣称首次在 HOI 中使用 counterfactual learning，或仅凭多个模块的组合就认定新颖性。
 
-```text
-明确接口
-    ↓
-实现
-    ↓
-必要测试
-    ↓
-真实运行
-    ↓
-人工检查
-    ↓
-提交
-```
+核心待验证主张是：**针对性的错误交互监督能否学到超越简单接触规则的评分能力，并改善真实三维交互候选的选择。** 论文扩展进一步研究其对生成训练和组合泛化的作用。
 
-每次任务报告记录：
+参考入口（已有公开来源，实施时继续核实当前代码、权重与许可证状态）：
 
-```text
-修改文件
-运行命令
-实际输出
-PASS / FAIL
-已知问题
-```
+- [ViHOI 官方仓库](https://github.com/MPI-Lab/ViHOI)：首选基线与运行接口来源。
+- [ViHOI 论文](https://arxiv.org/abs/2603.24383)：视觉先验与 HOI 生成设置。
+- [ScriptHOI](https://arxiv.org/abs/2605.05057)：HOI detection 中的反事实脚本监督；提醒避免宽泛的首次性声明。
+- [PRISM](https://arxiv.org/abs/2609.38172)：通过反事实视频扩充交互数据并用于机器人学习；与本项目的无效轨迹负例用途不同。
+- [COSMI](https://arxiv.org/abs/2610.03252)：多物体组合生成与未见交互组合；组合泛化不作为本项目独占概念。
+- [DIGHT](https://arxiv.org/abs/2610.10322)：物理偏好驱动的交互生成后训练；作为学习策略相关工作讨论。
 
----
+相关工作用于界定问题与设计对照，不要求 FYP 复现所有方法。跨任务论文不能直接当作数值基线；后续是否投稿，由结果、相关工作核查与导师意见共同决定。
 
-## 16. 实验可复现要求
+## 15. 最终交付
 
-每次实验保存：
+提交可运行源码、配置与数据准备说明、版本化划分、样本质量报告、Critic 检查点（许可允许时）、固定候选池索引、三种选择方法结果、独立评估记录、对比视频和 FYP 报告。
 
-```text
-Git commit
-Dataset version
-Split version
-完整 config
-Random seed
-GPU
-Training steps
-Runtime
-Checkpoint path
-Evaluation command
-Result path
-```
-
-不要把未真实跑出的数字写进 README。
-
-不要提交：
-
-```text
-受限数据
-密钥
-未经许可的模型文件
-```
-
----
-
-## 17. 四周时间表
-
-### Week 1：复现与可行性
-
-#### A
-
-```text
-ViHOI reproduction
-short training
-generator interface audit
-```
-
-#### B
-
-```text
-OMOMO audit
-contact extraction
-counterfactual feasibility
-```
-
-#### C
-
-```text
-official evaluation
-action-object matrix
-related-work audit
-```
-
-### Week-1 Gate
-
-只有以下全部通过，才继续大规模开发：
-
-```text
-baseline inference works
-short training works
-dataset loads correctly
-evaluation runs
-data interfaces understood
-```
-
-如果 baseline 没跑通，暂停新模块，优先解决 blocker。
-
----
-
-### Week 2：Counterfactual Pipeline
-
-#### A
-
-```text
-consistency loss interface
-gradient-flow tests
-generator hook
-```
-
-#### B
-
-```text
-counterfactual generation
-validity filtering
-manual inspection
-Critic dataset
-```
-
-#### C
-
-```text
-independent metrics
-rule-based baseline
-generalization split draft
-```
-
-阶段目标：
-
-```text
-Positive HOI
-+
-Validated Counterfactual HOI
-+
-Independent Metrics
-```
-
----
-
-### Week 3：核心方法
-
-#### A
-
-```text
-Critic integration
-generator experiment
-reranking fallback
-```
-
-#### B
-
-```text
-Critic training
-Critic generalization
-synthetic → real error evaluation
-```
-
-#### C
-
-```text
-Seen / Unseen Pair evaluation
-batch rendering
-initial result table
-```
-
-阶段目标：
-
-```text
-Baseline
-vs
-CounterHOI
-```
-
-必须有真实定量与定性结果。
-
----
-
-### Week 4：消融与论文原型
-
-停止继续加大型新模块。
-
-重点：
-
-```text
-实验
-分析
-failure case
-可视化
-写作
-```
-
-必须优先完成：
-
-```text
-Baseline
-
-Full CounterHOI
-
-Random corruption
-
-Rule-based interaction constraint
-
-No curriculum / curriculum
-
-Seen / unseen pairs
-
-Synthetic / real Critic errors
-```
-
-如果资源允许，再做：
-
-```text
-corruption type ablation
-multiple random seeds
-second dataset
-additional baseline
-```
-
----
-
-## 18. 最低完整原型
-
-最低完整原型必须包含：
-
-```text
-1. 可复现 HOI baseline
-
-2. 经过验证的 interaction-specific counterfactual samples
-
-3. Interaction Consistency Critic
-
-4. 独立 interaction evaluation
-
-5. 至少一种 Critic 真正影响输出的方法
-
-6. Seen / Unseen compositional evaluation
-
-7. Baseline 与核心 ablation
-```
-
-只有 Critic 分类准确率高：
-
-```text
-不够
-```
-
-必须证明：
-
-> **它能够影响最终 HOI generation。**
-
----
-
-## 19. 失败风险
-
-### Failure A：Critic 只学到扰动痕迹
-
-表现：
-
-```text
-synthetic negative 很高
-
-但
-
-real generator error 很差
-```
-
-说明 Critic 可能没学到 interaction consistency。
-
-处理：
-
-```text
-减少明显扰动痕迹
-增加 hard negatives
-改进 validity filtering
-```
-
----
-
-### Failure B：简单规则已经足够
-
-如果：
-
-```text
-distance threshold
-≈
-learned Critic
-```
-
-则需要重新评估 Critic 是否值得保留。
-
-优先尝试：
-
-```text
-更难的时序错误
-```
-
-而不是简单增加模型大小。
-
----
-
-### Failure C：Critic 改善交互但破坏动作质量
-
-表现：
-
-```text
-interaction consistency ↑
-
-但
-
-motion quality ↓
-```
-
-处理：
-
-```text
-降低 lambda
-只在 interaction phase 使用 loss
-使用 reranking
-```
-
----
-
-### Failure D：Unseen Pair 数量不足
-
-如果 OMOMO 无法支持可靠 compositional split：
-
-```text
-不要硬做
-```
-
-可以：
-
-```text
-缩小 claim
-```
-
-或后续引入第二数据集。
-
----
-
-## 20. Demo
-
-最终对比视频应在相同条件下比较：
-
-```text
-Text:
-"Lift the bottle and move it to the table"
-```
-
-展示：
-
-```text
-Baseline
-vs
-CounterHOI
-```
-
-建议叠加：
-
-```text
-人体运动
-物体运动
-接触点
-Contact Timeline
-```
-
-视频中必须同时展示：
-
-```text
-成功案例
-失败案例
-Unseen Pair 案例
-没有改善的案例
-```
-
-避免只 cherry-pick 成功结果。
-
----
-
-## 21. 论文故事线
-
-论文围绕一个主张展开：
-
-> **3D HOI generator 能否通过显式学习“合理但错误”的交互样本，更好地学习有效交互的边界？**
-
-整体故事：
-
-```text
-现有生成器主要学习正确交互
-        ↓
-生成结果可能运动平滑但交互错误
-        ↓
-构造 interaction-aware counterfactual negatives
-        ↓
-训练 Interaction Consistency Critic
-        ↓
-用 Critic 约束 / 选择生成结果
-        ↓
-测试是否提升真实生成错误
-        ↓
-测试是否迁移到 unseen action-object composition
-```
-
----
-
-## 22. 候选论文贡献
-
-只有实验支持后，才能正式表述为 contribution。
-
-### Contribution 1
-
-**Counterfactual Interaction Generation**
-
-构造局部运动仍合理、但人–物交互关系被破坏的受控错误样本。
-
-### Contribution 2
-
-**Interaction Consistency Critic**
-
-使用真实交互与反事实交互训练 Critic，并将其用于 HOI generation。
-
-### Contribution 3
-
-**Compositional Generalization Evaluation**
-
-研究 counterfactual supervision 是否能够改善 unseen action-object pair 上的交互表现。
-
-以上目前均是：
-
-```text
-research hypothesis
-```
-
-不是已经成立的论文贡献。
-
----
-
-## 23. Novelty Boundary
-
-本项目不要简单声称以下内容是创新：
-
-```text
-contact-aware generation
-contact loss
-physical consistency
-human-object distance constraint
-Critic guidance alone
-curriculum learning alone
-```
-
-真正需要保护的创新边界是：
-
-> **Learning from deliberately constructed plausible-but-invalid interactions.**
-
-更具体地说：
-
-> **模型是否能够通过受控错误样本学习一个可泛化的 interaction failure boundary，并迁移到真实生成错误和 unseen action-object combination。**
-
----
-
-## 24. 撞题监控重点
-
-持续关注：
-
-```text
-3D Human-Object Interaction Generation
-
-Human-Object Motion Synthesis
-
-Contact-Aware Motion Generation
-
-Interaction Guidance
-
-Interaction Critic
-
-Negative / Corrupted Interaction Supervision
-
-Counterfactual Motion Learning
-
-Hard Negative Interaction Learning
-
-Compositional HOI Generalization
-```
-
-如果出现同时包含以下组合的新工作：
-
-```text
-interaction-specific negative construction
-+
-learned interaction critic
-+
-generator guidance
-+
-compositional evaluation
-```
-
-应立即重新评估项目的 novelty claim。
-
----
-
-## 25. Week 1 Checklist
-
-### A
-
-- [ ] 确认 ViHOI 官方论文与仓库
-- [ ] 确认 license
-- [ ] 下载所需 checkpoint
-- [ ] 跑通一次 inference
-- [ ] 跑一次 short training
-- [ ] 记录 VRAM
-- [ ] 记录 runtime
-- [ ] 确认 generator loss
-- [ ] 确认 prediction representation
-
-### B
-
-- [ ] 确认 OMOMO 数据可用性与 license
-- [ ] 检查 sequence structure
-- [ ] 检查 action labels
-- [ ] 检查 object labels
-- [ ] 检查 coordinate system
-- [ ] 实现初版 contact extraction
-- [ ] 可视化若干 interaction
-- [ ] 验证三类 counterfactual 是否可行
-
-### C
-
-- [ ] 跑通官方 evaluation
-- [ ] 跑通 rendering
-- [ ] 建立 action-object matrix
-- [ ] 起草 unseen-pair split
-- [ ] 建立 experiment registry
-- [ ] 更新 related-work comparison table
-
-### 全员
-
-- [ ] 冻结公共 data interface
-- [ ] 冻结文件命名规范
-- [ ] 冻结 Week-2 API interface
-- [ ] 人工检查 counterfactual validity
-- [ ] 决定是否通过 Week-1 feasibility gate
-
----
-
-## 26. 最终交付
-
-四周原型目标：
-
-```text
-可复现 baseline
-
-Counterfactual interaction generator
-
-Counterfactual metadata
-
-Interaction Consistency Critic
-
-Generator integration
-
-Compositional splits
-
-Independent evaluation tools
-
-Experiment configs
-
-Model checkpoints
-
-Quantitative tables
-
-Qualitative comparison videos
-
-Failure analysis
-
-Paper draft
-```
-
----
-
-## 27. 当前状态
-
-```text
-[ ] Baseline verified
-
-[ ] Dataset verified
-
-[ ] Evaluation verified
-
-[ ] Counterfactual corruption implemented
-
-[ ] Counterfactual validity tested
-
-[ ] Critic implemented
-
-[ ] Critic trained
-
-[ ] Generator integration completed
-
-[ ] Compositional split frozen
-
-[ ] Core experiments completed
-
-[ ] Ablations completed
-
-[ ] Demo completed
-
-[ ] Paper draft completed
-```
-
----
-
-## 28. 当前研究原则
-
-> **不要为了让项目看起来工作量大而增加模块。每一个模块都必须对应一个明确的研究问题。**
-
-最终 CounterHOI 是否有价值，不看模块数量，而看实验是否支持核心问题：
-
-> **学习“合理但错误”的交互样本，能否真正改善 3D HOI generation，并提升 compositional interaction generalization？**
+Demo 展示同一条件和候选池下的随机、规则与 Critic 选择，叠加接触点或时间线，包含成功、失败与无改善案例。完整系统应能从保存的候选缓存重现选择与评价，无需为每次演示重新生成全部运动。
