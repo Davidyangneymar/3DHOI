@@ -1,0 +1,11 @@
+﻿condition_id,source_group,object,source_split_local,source_frames,proposed_start,proposed_end,action_summary_zh
+condition_01,sub16_clothesstand_000,clothesstand,test,143,0,119,提起、移动、放下
+condition_02,sub17_floorlamp_000,floorlamp,test,147,0,119,提起、移动、放下
+condition_03,sub16_largebox_002,largebox,test,150,0,119,推动、放回
+condition_04,sub17_monitor_000,monitor,test,178,0,119,提起、移动、放下
+condition_05,sub16_plasticbox_000,plasticbox,test,133,0,119,推动、放回
+condition_06,sub17_smallbox_003,smallbox,test,132,0,119,推动、放回
+condition_07,sub17_smalltable_005,smalltable,test,172,0,119,拉动、放回
+condition_08,sub17_suitcase_000,suitcase,test,144,0,119,推动、放回
+condition_09,sub16_whitechair_000,whitechair,test,155,0,119,面对椅背、提起、移动、放到地面
+condition_10,sub17_woodchair_000,woodchair,test,174,0,119,面对椅背、提起、移动、放到地面
