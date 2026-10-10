@@ -1,0 +1,27 @@
+{
+  "protocol_version": "real_error_pilot_v1",
+  "status": "draft",
+  "review_cap": 20,
+  "data_domain": "real_generator",
+  "use_for_calibration": false,
+  "unfiltered_by_critic": null,
+  "shortfall_reason": null,
+  "generator": {
+    "revision": null,
+    "checkpoint_sha256": null,
+    "training_manifest_sha256": null,
+    "pretraining_exposure": null
+  },
+  "slots": [],
+  "slot_example_fields": {
+    "sample_id": null,
+    "condition_id": null,
+    "source_group": null,
+    "action": null,
+    "object": null,
+    "condition_text": null,
+    "candidate_index": 0,
+    "seed": 2026100501
+  },
+  "instructions": "A fills 10 conditions x 2 fixed seeds before scoring; example is not a real condition. Unknown training exposure stays null. No score-based replacement. See REAL_ERROR_PILOT.md."
+}

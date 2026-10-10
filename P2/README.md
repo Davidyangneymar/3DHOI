@@ -6,6 +6,8 @@ B 已完成 A 格式例的几何、完整适配器及人工播放验收；10 条
 
 ## A/C 从这里开始
 
+实现与操作入口：[B 可协作代码](code/README.md)。包含接触/反事实/人工审核、Critic 与规则、真实试标及几何诊断代码；当前副本的 80 个 Python 临时夹具测试、32 个 JavaScript 测试和 CPU 接口自检通过，见 [验证说明](code/VALIDATION.md)。
+
 1. 查看 [进度总览](docs/B_STATUS.md) 和 [正式批量提案](handoff/real_pilot_v1/README.md)。
 2. 查看 [10 条候选源](handoff/real_pilot_v1/candidate_conditions.csv)。
 3. A 按 [A 回复模板](handoff/real_pilot_v1/A_REPLY.md) 回复可用窗口、条件来源、暴露、采样设置及时间。

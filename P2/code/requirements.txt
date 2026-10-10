@@ -1,0 +1,9 @@
+# Observed Windows CPU environment; clean installation on another machine is not verified.
+# Python 3.10; install the CPU torch wheel using the official CPU index if required.
+numpy==2.2.6
+torch==2.9.1
+scipy==1.15.3
+scikit-learn==1.7.2
+matplotlib==3.10.9
+plotly==7.1.0
+joblib==1.6.0

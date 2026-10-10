@@ -1,0 +1,12 @@
+{
+  "status": "pending_C",
+  "protocol_id": null,
+  "owner": null,
+  "generator_training_manifest_sha256": null,
+  "critic_training_manifest_sha256": null,
+  "pretraining_exposure_verified": false,
+  "training_pairs": [],
+  "unseen_pairs": [],
+  "conditions": {},
+  "instructions": "C fills the union of A/B training pairs and the exact action/object/split/pair_status for each condition. Only C's confirmed protocol may be frozen. No unseen claim is allowed while pending."
+}

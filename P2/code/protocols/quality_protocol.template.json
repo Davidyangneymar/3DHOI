@@ -1,0 +1,11 @@
+{
+  "status": "pending_C",
+  "protocol_id": null,
+  "owner": null,
+  "frozen_at": null,
+  "label_protocol": null,
+  "candidate_pool_sha256": null,
+  "quality_metrics": [],
+  "min_independent_groups": null,
+  "instructions": "C specifies independent quality metrics as name/direction(lower or higher)/margin, minimum independent groups, and the canonical candidate pool hash before inspecting method results. Blank fields intentionally block evaluation."
+}

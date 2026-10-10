@@ -27,4 +27,6 @@
 
 入口：[批量提案](../handoff/real_pilot_v1/README.md)、[A 回复模板](../handoff/real_pilot_v1/A_REPLY.md)、[C 回复模板](../handoff/real_pilot_v1/C_REPLY.md)。
 
+协作实现：[P2/code](../code/README.md) 已提供代码、依赖版本、协议模板及测试。当前代码副本通过 80 个 Python 夹具测试、32 个 JavaScript 测试与 CPU 接口自检；不是实际识错性能结果。数据、网格、权重和个人票据不随代码发布。
+
 日期表示该文档的核对时间，不是自动更新。后续进度须根据实际交付和审核凭据更新。

@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>真实生成交互 · 有限试标</title>
+<style>
+body{font:16px system-ui,sans-serif;background:#f5f7fa;color:#203248;margin:0}main{max-width:1450px;margin:auto;padding:24px}h1{font-size:25px}p{line-height:1.6}.notice{background:#e9f1fa;border-radius:8px;padding:12px}.layout{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(340px,1fr);gap:20px}.panel{background:white;border:1px solid #dde4ec;border-radius:12px;padding:18px}#scene{height:520px}button,select,input,textarea{font:inherit;padding:8px;border:1px solid #b8c6d6;border-radius:6px;max-width:100%;box-sizing:border-box}button{cursor:pointer;background:#eff5fc}button.primary{background:#235bad;color:white}label{display:block;margin:12px 0}label input[type=checkbox]{margin-right:8px}select{width:100%;margin-top:5px}#frame{width:100%}.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.error{color:#ac1b28}#message{min-height:26px;white-space:pre-wrap}.muted{font-size:14px;color:#596b7e}textarea{width:100%;min-height:60px}@media(max-width:950px){.layout{grid-template-columns:1fr}#scene{height:390px}}
+</style></head><body><main>
+<h1>真实生成交互 · 有限试标</h1>
+<p class="notice">最多试标 20 条，不确定也计入预算。你只需判断动作、阶段及交互是否合理。页面不展示模型或规则评分。点云是抽样网格，不能仅凭缝隙判断穿透；不能排除合法释放、惯性或外部支撑时请选择“不确定”。</p>
+<div class="toolbar"><button id="previous">上一条</button><button id="next">下一条</button><strong id="progress"></strong><button id="export">导出已完成记录</button><label>导入记录 <input id="import" type="file" accept=".jsonl"></label></div>
+<p id="message" role="status"></p>
+<div class="layout"><section class="panel"><h2 id="sample"></h2><p id="condition"></p><p id="focus" class="muted"></p><div id="scene"></div>
+<input id="frame" type="range" min="0" step="1" value="0"><div class="toolbar"><button id="play">播放</button><button id="pause">暂停</button><button id="jump">跳到定位片段</button><button id="full">查看完整序列</button><span id="frameText"></span></div>
+<p class="muted">自动定位依据手部运动变化，只是导航线索。可旋转、缩放视角并查看完整上下文。橙／蓝点分别为左／右手。</p></section>
+<section class="panel"><form id="form"><label>审核人 <input id="reviewer" autocomplete="name"></label>
+<label>实际动作<select id="action"></select></label><label>交互阶段<select id="phase"></select></label>
+<label>交互结论<select id="decision"><option value="">请选择</option><option value="0">正常／未见明确错误</option><option value="1">确定错误</option><option value="uncertain">不确定</option></select></label>
+<label>错误类型<select id="errorType"></select></label><div id="reasons"></div>
+<label>合法释放、惯性或外部支撑等解释<select id="legal"><option value="">请选择（确定错误时必选）</option><option value="excluded">已结合上下文排除</option><option value="possible">存在合法解释</option><option value="unknown">证据不足</option></select></label>
+<details><summary>证据帧与补充说明</summary><p>默认是自动定位区间。保存表示确认该区间支持你的结论，可按完整回放修改。</p><label>起始帧 <input id="start" type="number" min="0" step="1"></label><label>结束帧 <input id="end" type="number" min="0" step="1"></label><button id="useFrame" type="button">将当前帧设为起始帧</button><label>补充说明（选择“其他”或接触区域错误时，需写具体依据）<textarea id="note"></textarea></label></details>
+<p><button class="primary" type="submit">确认并保存本条</button></p><p class="muted">保存后可切换下一条；更新已保存答案不会增加条数。请导出 JSONL 后交回。</p>
+</form></section></div></main>
+<script src="plotly.min.js"></script><script src="queue.js"></script><script src="real_pilot_form.js"></script><script src="real_pilot_app.js"></script></body></html>

@@ -1,0 +1,28 @@
+{
+  "checkpoint_sha256": "93797cff65bf2d7b40fee7f0169c02017fb00edb6db1a6829b98aea74159a383",
+  "checkpoint_included": false,
+  "suggested_local_path": "models/interaction_critic_v1.pt",
+  "training_domain": "synthetic_v1",
+  "api_version": "critic_inference_v1",
+  "feature_version": "omomo_geom13_v1",
+  "channels": [
+    "left_distance_m",
+    "right_distance_m",
+    "left_contact",
+    "right_contact",
+    "left_displacement_m_per_frame",
+    "right_displacement_m_per_frame",
+    "object_displacement_m_per_frame",
+    "left_relative_displacement",
+    "right_relative_displacement",
+    "left_contact_site_displacement",
+    "right_contact_site_displacement",
+    "left_grasp_shift",
+    "right_grasp_shift"
+  ],
+  "p_error_direction": "higher indicates more error",
+  "p_valid_definition": "1 - p_error",
+  "calibrated_on_real_data": false,
+  "differentiable_generator_loss": false,
+  "redistribution_permission_verified": false
+}

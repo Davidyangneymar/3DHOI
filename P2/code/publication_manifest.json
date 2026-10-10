@@ -1,0 +1,472 @@
+{
+  "date": "2026-10-11",
+  "scope": "source snapshot for collaboration; no motion, model or human-review assets",
+  "copied_files": {
+    "audit_omomo_text.py": {
+      "source": "audit_omomo_text.py",
+      "source_sha256": "fb041664184391bd1bcdcbf29927572a64767404818e8d9327e059bcfa34cfe5",
+      "published_sha256": "fb041664184391bd1bcdcbf29927572a64767404818e8d9327e059bcfa34cfe5",
+      "text_equivalent_before_portability_patch": true
+    },
+    "batch_omomo_contact.py": {
+      "source": "batch_omomo_contact.py",
+      "source_sha256": "f0f3fd1bf3fef79d78a58d6602b929877efc4ae61092263a2b7a50992e4f1a3e",
+      "published_sha256": "f0f3fd1bf3fef79d78a58d6602b929877efc4ae61092263a2b7a50992e4f1a3e",
+      "text_equivalent_before_portability_patch": true
+    },
+    "counterfactual/__init__.py": {
+      "source": "counterfactual/__init__.py",
+      "source_sha256": "a9d0263ac3afa88b32b31040c17ae3120583ff97018d1b7dd8747ed921fd73b3",
+      "published_sha256": "a9d0263ac3afa88b32b31040c17ae3120583ff97018d1b7dd8747ed921fd73b3",
+      "text_equivalent_before_portability_patch": true
+    },
+    "counterfactual/audit_reviews.py": {
+      "source": "counterfactual/audit_reviews.py",
+      "source_sha256": "c036b2df7aeeb654897470e3a59d9b4cb61286cf573b4b875fc1c2491d61d6d7",
+      "published_sha256": "c036b2df7aeeb654897470e3a59d9b4cb61286cf573b4b875fc1c2491d61d6d7",
+      "text_equivalent_before_portability_patch": true
+    },
+    "counterfactual/benchmark.py": {
+      "source": "counterfactual/benchmark.py",
+      "source_sha256": "40b361436d3345e73c0af450cb19793fe82fbfcec508449dc13a19b934421112",
+      "published_sha256": "40b361436d3345e73c0af450cb19793fe82fbfcec508449dc13a19b934421112",
+      "text_equivalent_before_portability_patch": true
+    },
+    "counterfactual/bounded_arm_probe.py": {
+      "source": "counterfactual/bounded_arm_probe.py",
+      "source_sha256": "ce9b702fdff3b7a22a0512aca28e8f6a31e138e1f77f33048edc9047aa5a3d4a",
+      "published_sha256": "ce9b702fdff3b7a22a0512aca28e8f6a31e138e1f77f33048edc9047aa5a3d4a",
+      "text_equivalent_before_portability_patch": true
+    },
+    "counterfactual/build_v1.py": {
+      "source": "counterfactual/build_v1.py",
+      "source_sha256": "dccf9dffd1acdd5e4d74f4a79d1f2a3e468f3fda48f1b425e1e059558f9d431e",
+      "published_sha256": "c7fa5a07a50844b46a06c4f02f50758dd6e51a7a635671db4c34468ac95a5de8",
+      "text_equivalent_before_portability_patch": false
+    },
+    "counterfactual/calibrate.py": {
+      "source": "counterfactual/calibrate.py",
+      "source_sha256": "f0c308f25b6a4b1bca0fe7957fbb934ef2786afffc5e2654e0ad5c7a34bf6516",
+      "published_sha256": "f0c308f25b6a4b1bca0fe7957fbb934ef2786afffc5e2654e0ad5c7a34bf6516",
+      "text_equivalent_before_portability_patch": true
+    },
+    "counterfactual/check_regression.py": {
+      "source": "counterfactual/check_regression.py",
+      "source_sha256": "cea114924066f35eb0ce1b820d625d4ce7b09a91e30d9eb2052e0e56b8059228",
+      "published_sha256": "cea114924066f35eb0ce1b820d625d4ce7b09a91e30d9eb2052e0e56b8059228",
+      "text_equivalent_before_portability_patch": true
+    },
+    "counterfactual/contact_surface_v2.py": {
+      "source": "counterfactual/contact_surface_v2.py",
+      "source_sha256": "84a48be4de164ede251bad7c1ae9b5218405636c7055881ab8cb2d4d2d0332ae",
+      "published_sha256": "84a48be4de164ede251bad7c1ae9b5218405636c7055881ab8cb2d4d2d0332ae",
+      "text_equivalent_before_portability_patch": true
+    },
+    "counterfactual/contact_vertex_v2.py": {
+      "source": "counterfactual/contact_vertex_v2.py",
+      "source_sha256": "c5cad8413798f95b9d7ef773e350330bbb47939244239ceb3d740f98c362415b",
+      "published_sha256": "c5cad8413798f95b9d7ef773e350330bbb47939244239ceb3d740f98c362415b",
+      "text_equivalent_before_portability_patch": true
+    },
+    "counterfactual/critic_api.py": {
+      "source": "counterfactual/critic_api.py",
+      "source_sha256": "ddc8a40ea73634a2f1b041a38ca8d34534e0f0ef46827f73793398503347fa60",
+      "published_sha256": "ddc8a40ea73634a2f1b041a38ca8d34534e0f0ef46827f73793398503347fa60",
+      "text_equivalent_before_portability_patch": true
+    },
+    "counterfactual/diagnose_false_positives.py": {
+      "source": "counterfactual/diagnose_false_positives.py",
+      "source_sha256": "2851eaeb99ddaf0f84c6ba221e991805a5464adb6ac04ffba531630734c1f423",
+      "published_sha256": "2851eaeb99ddaf0f84c6ba221e991805a5464adb6ac04ffba531630734c1f423",
+      "text_equivalent_before_portability_patch": true
+    },
+    "counterfactual/diagnose_input_invariance.py": {
+      "source": "counterfactual/diagnose_input_invariance.py",
+      "source_sha256": "d285414d1711ca8fc975e59d87e3de915667fb91307559d122a7f90a37a7611d",
+      "published_sha256": "d285414d1711ca8fc975e59d87e3de915667fb91307559d122a7f90a37a7611d",
+      "text_equivalent_before_portability_patch": true
+    },
+    "counterfactual/diagnose_spatial.py": {
+      "source": "counterfactual/diagnose_spatial.py",
+      "source_sha256": "ef60a28d6352457bcb5a0f723f56b7a70feed461af6237837a2ec2e742f9fbb2",
+      "published_sha256": "ef60a28d6352457bcb5a0f723f56b7a70feed461af6237837a2ec2e742f9fbb2",
+      "text_equivalent_before_portability_patch": true
+    },
+    "counterfactual/diagnose_time_projection.py": {
+      "source": "counterfactual/diagnose_time_projection.py",
+      "source_sha256": "bc9d7088ed6280e1ab96c821771a99d60ca25756f3ac9fc279c98efbe7700cf6",
+      "published_sha256": "bc9d7088ed6280e1ab96c821771a99d60ca25756f3ac9fc279c98efbe7700cf6",
+      "text_equivalent_before_portability_patch": true
+    },
+    "counterfactual/evaluate_generator.py": {
+      "source": "counterfactual/evaluate_generator.py",
+      "source_sha256": "bee0f81124c5e32deb0562b0e4e85d5cd9741a533981d7c20b0bf7f1699fcb4f",
+      "published_sha256": "bee0f81124c5e32deb0562b0e4e85d5cd9741a533981d7c20b0bf7f1699fcb4f",
+      "text_equivalent_before_portability_patch": true
+    },
+    "counterfactual/evaluate_v2.py": {
+      "source": "counterfactual/evaluate_v2.py",
+      "source_sha256": "b4d723cdaadfe4148d3149970cf119d8f638cabb93e0978e6c252eea26d703e9",
+      "published_sha256": "b4d723cdaadfe4148d3149970cf119d8f638cabb93e0978e6c252eea26d703e9",
+      "text_equivalent_before_portability_patch": true
+    },
+    "counterfactual/freeze_reviewed.py": {
+      "source": "counterfactual/freeze_reviewed.py",
+      "source_sha256": "949025fae7e8e490eb60d8a7824da38095be66cb5bd5f425e9b69092442853ea",
+      "published_sha256": "949025fae7e8e490eb60d8a7824da38095be66cb5bd5f425e9b69092442853ea",
+      "text_equivalent_before_portability_patch": true
+    },
+    "counterfactual/generator_adapter.py": {
+      "source": "counterfactual/generator_adapter.py",
+      "source_sha256": "e376d1c6e3503ca342ce5625b9d42df3c9487d18e68dedaed73f51a74dee15bd",
+      "published_sha256": "e376d1c6e3503ca342ce5625b9d42df3c9487d18e68dedaed73f51a74dee15bd",
+      "text_equivalent_before_portability_patch": true
+    },
+    "counterfactual/generator_adapter_v2.py": {
+      "source": "counterfactual/generator_adapter_v2.py",
+      "source_sha256": "cbdc010409fe1c67d6f2bdd89f0dfebcef37d4ed0a7f67236338e114a34c6191",
+      "published_sha256": "cbdc010409fe1c67d6f2bdd89f0dfebcef37d4ed0a7f67236338e114a34c6191",
+      "text_equivalent_before_portability_patch": true
+    },
+    "counterfactual/geometry_candidate_v2.py": {
+      "source": "counterfactual/geometry_candidate_v2.py",
+      "source_sha256": "672f5570706d87504f42b78bf235cbe306e03f761295903b710e85c1f4b2e012",
+      "published_sha256": "672f5570706d87504f42b78bf235cbe306e03f761295903b710e85c1f4b2e012",
+      "text_equivalent_before_portability_patch": true
+    },
+    "counterfactual/geometry_features.py": {
+      "source": "counterfactual/geometry_features.py",
+      "source_sha256": "6f9bfa2e841510080894bd36e0c7e40f1b716cb76eeb9fe6bfecc8fe6bac7100",
+      "published_sha256": "41f45ce6f449691e00312c1bd8a526c206ebd848f63bd424e8e401df3a9b1a0b",
+      "text_equivalent_before_portability_patch": true
+    },
+    "counterfactual/geometry_features_v2.py": {
+      "source": "counterfactual/geometry_features_v2.py",
+      "source_sha256": "db15e33a4cc582135330cb59a3a03d5c965b2a5bfc799f2cc7922c329042509b",
+      "published_sha256": "db15e33a4cc582135330cb59a3a03d5c965b2a5bfc799f2cc7922c329042509b",
+      "text_equivalent_before_portability_patch": true
+    },
+    "counterfactual/localize_spatial_evidence.py": {
+      "source": "counterfactual/localize_spatial_evidence.py",
+      "source_sha256": "61ed8366edd0cf9e1396eac1fe7bd9468d5ea28adbf6f0e4b1883c241dabbb9a",
+      "published_sha256": "61ed8366edd0cf9e1396eac1fe7bd9468d5ea28adbf6f0e4b1883c241dabbb9a",
+      "text_equivalent_before_portability_patch": true
+    },
+    "counterfactual/mesh_surface_evidence.py": {
+      "source": "counterfactual/mesh_surface_evidence.py",
+      "source_sha256": "d704de69f1e1c99c52f6772f033037ef3deb3c61c45bceb7cfda635b824849d5",
+      "published_sha256": "d704de69f1e1c99c52f6772f033037ef3deb3c61c45bceb7cfda635b824849d5",
+      "text_equivalent_before_portability_patch": true
+    },
+    "counterfactual/paired_quality.py": {
+      "source": "counterfactual/paired_quality.py",
+      "source_sha256": "4fb349c83577aa510c62e8b5bfd4d6d99afd18652710058ee7e28c597ada947f",
+      "published_sha256": "4fb349c83577aa510c62e8b5bfd4d6d99afd18652710058ee7e28c597ada947f",
+      "text_equivalent_before_portability_patch": true
+    },
+    "counterfactual/prepare_review.py": {
+      "source": "counterfactual/prepare_review.py",
+      "source_sha256": "078aa539edd034b8ebd7365db8cdcdc05d0a2391645bc213508b29f60c5a3008",
+      "published_sha256": "078aa539edd034b8ebd7365db8cdcdc05d0a2391645bc213508b29f60c5a3008",
+      "text_equivalent_before_portability_patch": true
+    },
+    "counterfactual/prepare_review_batch.py": {
+      "source": "counterfactual/prepare_review_batch.py",
+      "source_sha256": "610332d32a77ad5dd98f0c97b4cd7fbbc5692445f7dd04b4efe17db64d18b049",
+      "published_sha256": "610332d32a77ad5dd98f0c97b4cd7fbbc5692445f7dd04b4efe17db64d18b049",
+      "text_equivalent_before_portability_patch": true
+    },
+    "counterfactual/prepare_review_budget.py": {
+      "source": "counterfactual/prepare_review_budget.py",
+      "source_sha256": "f11d1ca508b77340e87b5344bd81c3ab31a607a2fc0be535b9569ec70f1d440b",
+      "published_sha256": "f11d1ca508b77340e87b5344bd81c3ab31a607a2fc0be535b9569ec70f1d440b",
+      "text_equivalent_before_portability_patch": true
+    },
+    "counterfactual/prepare_review_followup.py": {
+      "source": "counterfactual/prepare_review_followup.py",
+      "source_sha256": "344a702f0f4cbdafe7137b34cf9d78a56b9848b11d896db546d6ea26da6e51f9",
+      "published_sha256": "344a702f0f4cbdafe7137b34cf9d78a56b9848b11d896db546d6ea26da6e51f9",
+      "text_equivalent_before_portability_patch": true
+    },
+    "counterfactual/prepare_review_pilot.py": {
+      "source": "counterfactual/prepare_review_pilot.py",
+      "source_sha256": "13117fe01862dce44c9cc620999c38d982b075b86bcd66fffc6de7800537a434",
+      "published_sha256": "13117fe01862dce44c9cc620999c38d982b075b86bcd66fffc6de7800537a434",
+      "text_equivalent_before_portability_patch": true
+    },
+    "counterfactual/prepare_review_targeted.py": {
+      "source": "counterfactual/prepare_review_targeted.py",
+      "source_sha256": "408b51cf977202e8a240c47e2914fbf38dc57f248823d038f52d3d7410712b96",
+      "published_sha256": "408b51cf977202e8a240c47e2914fbf38dc57f248823d038f52d3d7410712b96",
+      "text_equivalent_before_portability_patch": true
+    },
+    "counterfactual/probe_calibration.py": {
+      "source": "counterfactual/probe_calibration.py",
+      "source_sha256": "892bf597fff37ef8aa512f3402f2b2f6edfed3d1db3bc41a599141394c2447f0",
+      "published_sha256": "892bf597fff37ef8aa512f3402f2b2f6edfed3d1db3bc41a599141394c2447f0",
+      "text_equivalent_before_portability_patch": true
+    },
+    "counterfactual/probe_reviewed_spatial.py": {
+      "source": "counterfactual/probe_reviewed_spatial.py",
+      "source_sha256": "a4379251ef458ea3ec2db8ae5c77beda5d4544c9a6b74873e871612d4a69582b",
+      "published_sha256": "a4379251ef458ea3ec2db8ae5c77beda5d4544c9a6b74873e871612d4a69582b",
+      "text_equivalent_before_portability_patch": true
+    },
+    "counterfactual/protocol_checks.py": {
+      "source": "counterfactual/protocol_checks.py",
+      "source_sha256": "449fbf8430596704dc71595641aa85f7ed4a5afe5fd5ede0164d9b8f5894e0ff",
+      "published_sha256": "449fbf8430596704dc71595641aa85f7ed4a5afe5fd5ede0164d9b8f5894e0ff",
+      "text_equivalent_before_portability_patch": true
+    },
+    "counterfactual/real_error_pilot.py": {
+      "source": "counterfactual/real_error_pilot.py",
+      "source_sha256": "03ed47f9496dbb705b514155a55fef508aa5a16a031cd866cf7c9e6baad98a7c",
+      "published_sha256": "03ed47f9496dbb705b514155a55fef508aa5a16a031cd866cf7c9e6baad98a7c",
+      "text_equivalent_before_portability_patch": true
+    },
+    "counterfactual/real_pilot_app.js": {
+      "source": "counterfactual/real_pilot_app.js",
+      "source_sha256": "2e0005dab31089829815a25110c68e6bedc90cdf4937cf62a1bf0289ca92ebd7",
+      "published_sha256": "2e0005dab31089829815a25110c68e6bedc90cdf4937cf62a1bf0289ca92ebd7",
+      "text_equivalent_before_portability_patch": true
+    },
+    "counterfactual/real_pilot_form.js": {
+      "source": "counterfactual/real_pilot_form.js",
+      "source_sha256": "29b6ed401014cbb8134c9f062b14f129b9c8f4ddea454e3a2b72c242e1dfa35a",
+      "published_sha256": "29b6ed401014cbb8134c9f062b14f129b9c8f4ddea454e3a2b72c242e1dfa35a",
+      "text_equivalent_before_portability_patch": true
+    },
+    "counterfactual/real_pilot_template.html": {
+      "source": "counterfactual/real_pilot_template.html",
+      "source_sha256": "af7e798cf1da2525fbed07a54b21acc2f19a8e57287693c8331de9d86b22e2e1",
+      "published_sha256": "af7e798cf1da2525fbed07a54b21acc2f19a8e57287693c8331de9d86b22e2e1",
+      "text_equivalent_before_portability_patch": true
+    },
+    "counterfactual/review_app.js": {
+      "source": "counterfactual/review_app.js",
+      "source_sha256": "76a2ccd48c2d152102b07a8e04d48caac1f1880b8655f35c171f9dd4aed8a383",
+      "published_sha256": "76a2ccd48c2d152102b07a8e04d48caac1f1880b8655f35c171f9dd4aed8a383",
+      "text_equivalent_before_portability_patch": true
+    },
+    "counterfactual/review_form.js": {
+      "source": "counterfactual/review_form.js",
+      "source_sha256": "e4553f16f4b0aab2cc46633ec7295fb9a526e69e3532f54b477498ae2ce22b4c",
+      "published_sha256": "e4553f16f4b0aab2cc46633ec7295fb9a526e69e3532f54b477498ae2ce22b4c",
+      "text_equivalent_before_portability_patch": true
+    },
+    "counterfactual/review_integrity.py": {
+      "source": "counterfactual/review_integrity.py",
+      "source_sha256": "bee958c69f6961291e9b3bbac232465eb66c70ddad7bfa3bd0bc3f34ff308a83",
+      "published_sha256": "bee958c69f6961291e9b3bbac232465eb66c70ddad7bfa3bd0bc3f34ff308a83",
+      "text_equivalent_before_portability_patch": true
+    },
+    "counterfactual/review_mechanics.py": {
+      "source": "counterfactual/review_mechanics.py",
+      "source_sha256": "6dcebda2a7b9cff79f8216de78f9e06a6b292401e0e33e6647f98e200ac5ada7",
+      "published_sha256": "6dcebda2a7b9cff79f8216de78f9e06a6b292401e0e33e6647f98e200ac5ada7",
+      "text_equivalent_before_portability_patch": true
+    },
+    "counterfactual/review_template.html": {
+      "source": "counterfactual/review_template.html",
+      "source_sha256": "cc4f00155e00047877592fcd336c7421ce6cb87292816ab7a93916cb75f222e3",
+      "published_sha256": "c39b50b4ae12eba4326cf57bc5762b0071f630fe97386193f99b48bbdd63fab6",
+      "text_equivalent_before_portability_patch": true
+    },
+    "counterfactual/reviewed_subset.py": {
+      "source": "counterfactual/reviewed_subset.py",
+      "source_sha256": "8b8d02888866618ef5005cd6a30a0a3665c6322587a06880d5679b6381a17f94",
+      "published_sha256": "8b8d02888866618ef5005cd6a30a0a3665c6322587a06880d5679b6381a17f94",
+      "text_equivalent_before_portability_patch": true
+    },
+    "counterfactual/spatial_candidate_preflight.py": {
+      "source": "counterfactual/spatial_candidate_preflight.py",
+      "source_sha256": "d2b408339f3023255c20cd0e3409a4c9d89efc96ce3d2960eb3a4c28a899ce22",
+      "published_sha256": "d2b408339f3023255c20cd0e3409a4c9d89efc96ce3d2960eb3a4c28a899ce22",
+      "text_equivalent_before_portability_patch": true
+    },
+    "counterfactual/train_reviewed.py": {
+      "source": "counterfactual/train_reviewed.py",
+      "source_sha256": "4e1fb3f4586dce0fc86c81a798c12e4d5d3e30848f0c2f1e1615bd8719272bc4",
+      "published_sha256": "4e1fb3f4586dce0fc86c81a798c12e4d5d3e30848f0c2f1e1615bd8719272bc4",
+      "text_equivalent_before_portability_patch": true
+    },
+    "counterfactual/validate_geometry_candidate_v2.py": {
+      "source": "counterfactual/validate_geometry_candidate_v2.py",
+      "source_sha256": "a5ce24c5b7c243870554b3ffc9239115ddb3001a7695a80f458260a4270a7b19",
+      "published_sha256": "a5ce24c5b7c243870554b3ffc9239115ddb3001a7695a80f458260a4270a7b19",
+      "text_equivalent_before_portability_patch": true
+    },
+    "counterfactual/verify_v1.py": {
+      "source": "counterfactual/verify_v1.py",
+      "source_sha256": "9f0dfb4a8fa1d7634042b375f7f075607df146669ac2d1329bc65c72d2e515fe",
+      "published_sha256": "9f0dfb4a8fa1d7634042b375f7f075607df146669ac2d1329bc65c72d2e515fe",
+      "text_equivalent_before_portability_patch": true
+    },
+    "counterfactual/visualize_samples.py": {
+      "source": "counterfactual/visualize_samples.py",
+      "source_sha256": "7f554a539ce7f9d7dde98822391147edcd52bc6193cfc6732ef1ee9a939b26f3",
+      "published_sha256": "7f554a539ce7f9d7dde98822391147edcd52bc6193cfc6732ef1ee9a939b26f3",
+      "text_equivalent_before_portability_patch": true
+    },
+    "interface_smoke.py": {
+      "source": "handoff/interface_smoke.py",
+      "source_sha256": "e0385471c5d305691557cf35b63e27e2c4e093068a380aeb70468572ce438552",
+      "published_sha256": "e0385471c5d305691557cf35b63e27e2c4e093068a380aeb70468572ce438552",
+      "text_equivalent_before_portability_patch": true
+    },
+    "models/__init__.py": {
+      "source": "models/__init__.py",
+      "source_sha256": "a90bd8dcedc8a5bad13eb81bba29628ff21dd255a563226f7632f9a1e8cd9e44",
+      "published_sha256": "a90bd8dcedc8a5bad13eb81bba29628ff21dd255a563226f7632f9a1e8cd9e44",
+      "text_equivalent_before_portability_patch": true
+    },
+    "models/interaction_critic.py": {
+      "source": "models/interaction_critic.py",
+      "source_sha256": "8e6a89a386a5c1c1ad5e51cb1319008e8149f97818498f01b9c92764745467f2",
+      "published_sha256": "8e6a89a386a5c1c1ad5e51cb1319008e8149f97818498f01b9c92764745467f2",
+      "text_equivalent_before_portability_patch": true
+    },
+    "omomo_contact.py": {
+      "source": "omomo_contact.py",
+      "source_sha256": "31b0107fe4e639727a37ff23cdeb190f850fb5017bdb39e623ff4d4dba060dc9",
+      "published_sha256": "31b0107fe4e639727a37ff23cdeb190f850fb5017bdb39e623ff4d4dba060dc9",
+      "text_equivalent_before_portability_patch": true
+    },
+    "plot_omomo_alignment.py": {
+      "source": "plot_omomo_alignment.py",
+      "source_sha256": "931becb2ed7c6d4e681d13790c5ee2717c445d07e042bbb5a068eb5b64b43248",
+      "published_sha256": "931becb2ed7c6d4e681d13790c5ee2717c445d07e042bbb5a068eb5b64b43248",
+      "text_equivalent_before_portability_patch": true
+    },
+    "protocols/pair_protocol.template.json": {
+      "source": "handoff/pair_protocol.template.json",
+      "source_sha256": "7a2140a75bae8f872b368327b3bdfd6beeb6b1d68c09c106c8c7a4f7eac3ca00",
+      "published_sha256": "7a2140a75bae8f872b368327b3bdfd6beeb6b1d68c09c106c8c7a4f7eac3ca00",
+      "text_equivalent_before_portability_patch": true
+    },
+    "protocols/quality_protocol.template.json": {
+      "source": "handoff/quality_protocol.template.json",
+      "source_sha256": "242c58a81194830a39523cae5b76ad50f0a714050004a3ba31418b21a6fb618c",
+      "published_sha256": "242c58a81194830a39523cae5b76ad50f0a714050004a3ba31418b21a6fb618c",
+      "text_equivalent_before_portability_patch": true
+    },
+    "protocols/real_pilot_plan.template.json": {
+      "source": "handoff/real_pilot_plan.template.json",
+      "source_sha256": "247111f94a50048da19c88f5ca9a309a5664690643ee0d944a901e3e3c0a6f29",
+      "published_sha256": "247111f94a50048da19c88f5ca9a309a5664690643ee0d944a901e3e3c0a6f29",
+      "text_equivalent_before_portability_patch": true
+    },
+    "tests/integration/test_real_error_pilot.py": {
+      "source": "tests/test_real_error_pilot.py",
+      "source_sha256": "17cdd278cfc3dbba0a53e65de1e0b59a5777d6cbc16a45a1b7589d0248af3fa7",
+      "published_sha256": "17cdd278cfc3dbba0a53e65de1e0b59a5777d6cbc16a45a1b7589d0248af3fa7",
+      "text_equivalent_before_portability_patch": true
+    },
+    "tests/test_bounded_arm_probe.py": {
+      "source": "tests/test_bounded_arm_probe.py",
+      "source_sha256": "a4b1624ddb22ddc5a344786578ca8906e5537c9fb1a9d70fbfdb4cadcb4b9496",
+      "published_sha256": "a4b1624ddb22ddc5a344786578ca8906e5537c9fb1a9d70fbfdb4cadcb4b9496",
+      "text_equivalent_before_portability_patch": true
+    },
+    "tests/test_contact_surface_v2.py": {
+      "source": "tests/test_contact_surface_v2.py",
+      "source_sha256": "ef6018c72e37f5de7ecb9aa9509c9f457013e9df9934d85677763f6d9aa92563",
+      "published_sha256": "ef6018c72e37f5de7ecb9aa9509c9f457013e9df9934d85677763f6d9aa92563",
+      "text_equivalent_before_portability_patch": true
+    },
+    "tests/test_contact_vertex_v2.py": {
+      "source": "tests/test_contact_vertex_v2.py",
+      "source_sha256": "1bc5b7a3ae06b380e5c5580736b3082abaaa0465876248bb28ef8c9be69433b8",
+      "published_sha256": "1bc5b7a3ae06b380e5c5580736b3082abaaa0465876248bb28ef8c9be69433b8",
+      "text_equivalent_before_portability_patch": true
+    },
+    "tests/test_geometry_features_v2.py": {
+      "source": "tests/test_geometry_features_v2.py",
+      "source_sha256": "30ed585ee3297914ffe96107d58dd98aeb5b72ae01e2b2ed877db20198040f0a",
+      "published_sha256": "30ed585ee3297914ffe96107d58dd98aeb5b72ae01e2b2ed877db20198040f0a",
+      "text_equivalent_before_portability_patch": true
+    },
+    "tests/test_mesh_surface_evidence.py": {
+      "source": "tests/test_mesh_surface_evidence.py",
+      "source_sha256": "f8fcb80e99e05a24ea0c5b0f65f708017f70d024cf9c3af4fec6d5f4115d899f",
+      "published_sha256": "f8fcb80e99e05a24ea0c5b0f65f708017f70d024cf9c3af4fec6d5f4115d899f",
+      "text_equivalent_before_portability_patch": true
+    },
+    "tests/test_real_pilot_app.js": {
+      "source": "tests/test_real_pilot_app.js",
+      "source_sha256": "6077b9e5392b320c06293148ba14791af3b00a44a148a95508d4fb790998e773",
+      "published_sha256": "6077b9e5392b320c06293148ba14791af3b00a44a148a95508d4fb790998e773",
+      "text_equivalent_before_portability_patch": true
+    },
+    "tests/test_real_pilot_form.js": {
+      "source": "tests/test_real_pilot_form.js",
+      "source_sha256": "3d6a211ec18eb93aa87cf61020e22b078cb36a79e7791dc0eac2cc513bdbc252",
+      "published_sha256": "3d6a211ec18eb93aa87cf61020e22b078cb36a79e7791dc0eac2cc513bdbc252",
+      "text_equivalent_before_portability_patch": true
+    },
+    "tests/test_review_batch.py": {
+      "source": "tests/test_review_batch.py",
+      "source_sha256": "837b20ea7fb82ce1ea40b8deb4b89223a8b093482b1a26634a6bfbad1b09c3ac",
+      "published_sha256": "837b20ea7fb82ce1ea40b8deb4b89223a8b093482b1a26634a6bfbad1b09c3ac",
+      "text_equivalent_before_portability_patch": true
+    },
+    "tests/test_review_budget.py": {
+      "source": "tests/test_review_budget.py",
+      "source_sha256": "8ec499b0fb8519377b8ae91e19a0e1305f5a619f24b0c7fc06a511f1fa2b55a9",
+      "published_sha256": "8ec499b0fb8519377b8ae91e19a0e1305f5a619f24b0c7fc06a511f1fa2b55a9",
+      "text_equivalent_before_portability_patch": true
+    },
+    "tests/test_review_followup.py": {
+      "source": "tests/test_review_followup.py",
+      "source_sha256": "3804377cfd6cd59e71838bcae8b94b9eb0d9f26e69394abffeaa46e2404d4198",
+      "published_sha256": "3804377cfd6cd59e71838bcae8b94b9eb0d9f26e69394abffeaa46e2404d4198",
+      "text_equivalent_before_portability_patch": true
+    },
+    "tests/test_review_form.js": {
+      "source": "tests/test_review_form.js",
+      "source_sha256": "c6cb09805ced03fc2e6f73b8f1622619649130cffa4634a88bb739c9c1584788",
+      "published_sha256": "c6cb09805ced03fc2e6f73b8f1622619649130cffa4634a88bb739c9c1584788",
+      "text_equivalent_before_portability_patch": true
+    },
+    "tests/test_review_mechanics.py": {
+      "source": "tests/test_review_mechanics.py",
+      "source_sha256": "b8f4b9278f8b16be978d99277613abe2e0b0c9841b8a774cf1f16aff83eb7bc0",
+      "published_sha256": "b8f4b9278f8b16be978d99277613abe2e0b0c9841b8a774cf1f16aff83eb7bc0",
+      "text_equivalent_before_portability_patch": true
+    },
+    "tests/test_reviewed_subset.py": {
+      "source": "tests/test_reviewed_subset.py",
+      "source_sha256": "db390735c52d92c8d72ed90a8bee90155e21d574e696b769861ff8d8a086f9ae",
+      "published_sha256": "db390735c52d92c8d72ed90a8bee90155e21d574e696b769861ff8d8a086f9ae",
+      "text_equivalent_before_portability_patch": true
+    },
+    "tests/test_spatial_candidate_preflight.py": {
+      "source": "tests/test_spatial_candidate_preflight.py",
+      "source_sha256": "601575c74a3b5d34b0627b8c5988024663cbbb0ed4b2fa236249240ce67f08a1",
+      "published_sha256": "601575c74a3b5d34b0627b8c5988024663cbbb0ed4b2fa236249240ce67f08a1",
+      "text_equivalent_before_portability_patch": true
+    },
+    "tests/test_training_parent_binding.py": {
+      "source": "tests/test_training_parent_binding.py",
+      "source_sha256": "f9bb905642f24b4c1d26e280de8dba3f389f296efa0e80bea61789c2bc7ba6d9",
+      "published_sha256": "f9bb905642f24b4c1d26e280de8dba3f389f296efa0e80bea61789c2bc7ba6d9",
+      "text_equivalent_before_portability_patch": true
+    },
+    "third_party/OMOMO_LICENSE.txt": {
+      "source": "reports/a_bundle_20261011/third_party/OMOMO_LICENSE.txt",
+      "source_sha256": "deb92c90a9b660c53ef267c7895f828ddc99783db191d55e26da4fee7883e5d6",
+      "published_sha256": "deb92c90a9b660c53ef267c7895f828ddc99783db191d55e26da4fee7883e5d6",
+      "text_equivalent_before_portability_patch": true
+    }
+  },
+  "portability_changes": [
+    {
+      "file": "counterfactual/build_v1.py",
+      "change": "replace machine-specific attachment path with COUNTERHOI_SOURCE_REVIEW or reviews/source_review.csv; algorithms unchanged",
+      "historical_frozen_builder_hash_compatibility": false
+    }
+  ],
+  "current_formal_step": "2/6",
+  "training_started": false,
+  "test_fixtures_are_not_human_annotations": true
+}

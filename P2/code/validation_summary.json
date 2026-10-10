@@ -1,0 +1,34 @@
+{
+  "date": "2026-10-11",
+  "python_fixture_tests": {
+    "passed": 80,
+    "failed": 0
+  },
+  "javascript_tests": {
+    "passed": 32,
+    "failed": 0
+  },
+  "cpu_interface_smoke": {
+    "status": "passed",
+    "python": "3.10.20",
+    "torch": "2.9.1+cpu",
+    "numpy": "2.2.6",
+    "device": "cpu",
+    "fixtures": 4,
+    "single_batch_max_difference": 0.0,
+    "complement_and_threshold_checks": true,
+    "invalid_input_checks": true,
+    "pending_C_protocol_rejected": true,
+    "real_generator_transfer_test": false,
+    "training_performed": false,
+    "human_budget_consumed": 0,
+    "checkpoint_was_external_to_bundle": true
+  },
+  "checkpoint_included": false,
+  "human_reviews_included": false,
+  "limits": [
+    "Engineering fixture checks, not real-generator error performance.",
+    "Asset-dependent real pilot integration test is provided separately, not part of these 80 tests.",
+    "Fresh installation on another machine has not been tested."
+  ]
+}
